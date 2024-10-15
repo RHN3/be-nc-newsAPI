@@ -1,10 +1,15 @@
+const fs = require("fs");
 const express = require("express");
 const app = express();
 
 const { getTopics, getEndpoints } = require("./controllers/topics.controller");
 const { getArticleById } = require("./controllers/articles.controller");
 
-app.get("/api", getEndpoints);
+const endpoints = require("./endpoints.json");
+
+app.get("/api", (req, res, next) => {
+  return res.status(200).send(endpoints);
+});
 
 app.get("/api/topics", getTopics);
 
@@ -19,7 +24,6 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
   if (err.code && err.msg) {
     res.status(err.code).send({ msg: err.msg });
   } else {

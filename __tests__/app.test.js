@@ -2,6 +2,7 @@ const request = require("supertest");
 const testData = require("../db/data/test-data/index.js");
 const connection = require("../db/connection");
 const seed = require("../db/seeds/seed");
+const endpoints = require("../endpoints.json");
 
 const app = require("../app");
 
@@ -14,10 +15,8 @@ describe("/api", () => {
       return request(app)
         .get("/api")
         .expect(200)
-        .then((endpoints) => {
-          Object.keys(endpoints).forEach((endpoint) => {
-            expect(typeof endpoint).toBe("string");
-          });
+        .then(({ body }) => {
+          expect(body).toEqual(endpoints);
         });
     });
   });
