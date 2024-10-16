@@ -110,4 +110,40 @@ describe("/api/articles/:atricle_id", () => {
       });
     });
   });
+  describe("/api/articles/:article_id/comments", () => {
+    test("200 OK: should return an array of comments refferencing the article_id that was given", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body);
+          if (body.comments.length > 0) {
+            body.comments.forEach((comment) => {
+              expect(typeof comment.comment_id).toBe("number");
+              expect(typeof comment.votes).toBe("number");
+              expect(typeof comment.created_at).toBe("string");
+              expect(typeof comment.author).toBe("string");
+              expect(typeof comment.body).toBe("string");
+              expect(typeof comment.article_id).toBe("number");
+            });
+          }
+        });
+    });
+    test("400 Bad request: should return 'Bad request' when given an invalid input for article_id", () => {
+      return request(app)
+        .get("/api/articles/hello/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test.only("404 Not found: should return 'Not found' when given a valid input but out of the scope", () => {
+      return request(app)
+        .get("/api/articles/999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Not found");
+        });
+    });
+  });
 });

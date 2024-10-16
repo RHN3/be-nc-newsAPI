@@ -6,6 +6,7 @@ const { getTopics } = require("./controllers/topics.controller");
 const {
   getArticleById,
   getArticles,
+  getComments,
 } = require("./controllers/articles.controller");
 
 const endpoints = require("./endpoints.json");
@@ -19,6 +20,8 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleById);
+
+app.get("/api/articles/:article_id/comments", getComments);
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
