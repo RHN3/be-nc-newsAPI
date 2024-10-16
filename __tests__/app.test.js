@@ -137,7 +137,7 @@ describe("/api/articles/:atricle_id", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test.only("404 Not found: should return 'Not found' when given a valid input but out of the scope", () => {
+    test("404 Not found: should return 'Not found' when given a valid input but out of the scope", () => {
       return request(app)
         .get("/api/articles/999/comments")
         .expect(404)
