@@ -31,3 +31,20 @@ exports.selectArticleById = async (article_id) => {
       return rows[0];
     });
 };
+
+exports.selectComments = (article_id) => {
+  return db
+    .query(
+      `
+    SELECT * FROM comments
+    WHERE article_id=$1
+    `,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ code: 404, msg: "Not found" });
+      }
+      return rows;
+    });
+};
