@@ -131,7 +131,7 @@ describe("/api/articles/:atricle_id", () => {
     });
     test("400 Bad request: should return 'Bad request' when given an invalid input for article_id", () => {
       return request(app)
-        .get("/api/articles/hello/comments")
+        .get("/api/articles/hello")
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
@@ -139,7 +139,7 @@ describe("/api/articles/:atricle_id", () => {
     });
     test("404 Not found: should return 'Not found' when given a valid input but out of the scope", () => {
       return request(app)
-        .get("/api/articles/999/comments")
+        .get("/api/articles/999")
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("Not found");
