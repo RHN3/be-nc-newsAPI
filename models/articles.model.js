@@ -70,3 +70,29 @@ exports.updateComments = (article_id, reqBody) => {
       return rows[0];
     });
 };
+
+exports.updateArticle = (article_id, reqBody) => {
+  if (!Object.keys(reqBody).length) {
+    return Promise.reject({ code: 422, msg: "Unprocessable content" });
+  }
+  return db
+    .query(
+      format(
+        `
+    UPDATE articles
+    SET 
+    votes= votes + %L
+    WHERE article_id = %L
+    RETURNING *
+    ;`,
+        Object.values(reqBody)[0],
+        article_id
+      )
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ code: 400, msg: "Bad request" });
+      }
+      return rows[0];
+    });
+};

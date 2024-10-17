@@ -76,6 +76,44 @@ describe("/api/articles/:atricle_id", () => {
         });
     });
   });
+  describe("PATCH", () => {
+    test("200 OK: should return an article with the updated votes by article_id", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: -50 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).toBe(50);
+        });
+    });
+    test("400 Bad request: if valid input given for artcle id but non existant", () => {
+      return request(app)
+        .patch("/api/articles/999")
+        .send({ inc_votes: -50 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("400 Bad request: if invalid input given for artcle id", () => {
+      return request(app)
+        .patch("/api/articles/hello")
+        .send({ inc_votes: -50 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("422 Unprocessable content: if given a invalid body ", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({})
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Unprocessable content");
+        });
+    });
+  });
   describe("/api/atricles", () => {
     describe("GET", () => {
       test("200 OK: should return an array of all the articles", () => {
@@ -191,7 +229,7 @@ describe("/api/articles/:atricle_id", () => {
       });
       test("422 Unprocessable content: if given a invalid body ", () => {
         return request(app)
-          .post("/api/articles/hello/comments")
+          .post("/api/articles/1/comments")
           .send({})
           .expect(422)
           .then(({ body }) => {
