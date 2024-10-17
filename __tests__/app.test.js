@@ -1,7 +1,7 @@
 const request = require("supertest");
 require("jest-sorted");
 const testData = require("../db/data/test-data/index.js");
-const connection = require("../db/connection");
+const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const endpoints = require("../endpoints.json");
 
@@ -9,7 +9,7 @@ const app = require("../app");
 const articles = require("../db/data/test-data/articles.js");
 
 beforeEach(() => seed(testData));
-afterAll(() => connection.end());
+afterAll(() => db.end());
 
 describe("/api", () => {
   describe("GET", () => {
@@ -236,6 +236,38 @@ describe("/api/articles/:atricle_id", () => {
             expect(body.msg).toBe("Unprocessable content");
           });
       });
+    });
+  });
+});
+describe("/api/comments/:comment_id", () => {
+  describe("DELETE", () => {
+    test("204 : delete a comment refrencing the id that was given", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(() => {
+          return db
+            .query(`SELECT * FROM comments WHERE comment_id=1;`)
+            .then(({ rows }) => {
+              expect(rows.length).toBe(0);
+            });
+        });
+    });
+    test("400 Bad request: if invalid input given for comment_id", () => {
+      return request(app)
+        .delete("/api/comments/hello")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("404 Not found: if valid input given for comment_id but not found", () => {
+      return request(app)
+        .delete("/api/comments/999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Not found");
+        });
     });
   });
 });
