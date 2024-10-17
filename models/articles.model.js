@@ -48,3 +48,25 @@ exports.selectComments = (article_id) => {
       return rows;
     });
 };
+
+exports.updateComments = (article_id, reqBody) => {
+  if (!Object.keys(reqBody).length) {
+    return Promise.reject({ code: 422, msg: "Unprocessable content" });
+  }
+  return db
+    .query(
+      format(
+        `
+    INSERT INTO comments (author,body,article_id)
+    VALUES (%L,%L,%L)
+    RETURNING *
+    `,
+        reqBody.username,
+        reqBody.body,
+        article_id
+      )
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
