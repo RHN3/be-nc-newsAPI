@@ -39,6 +39,40 @@ describe("/api/topics", () => {
     });
   });
 });
+describe("/api/atricles", () => {
+  describe("GET", () => {
+    test("200 OK: should return an array of all the articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBeGreaterThan(0);
+          body.articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("string");
+          });
+        });
+    });
+    test("200 OK: should return an array of all the articles sorted by date", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          body.articles.forEach((article) => {
+            article.created_at = new Date(article.created_at).getTime();
+          });
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+  });
+});
 describe("/api/articles/:atricle_id", () => {
   describe("GET", () => {
     test("200 OK: should return an single article matching the id that is given", () => {
@@ -112,40 +146,6 @@ describe("/api/articles/:atricle_id", () => {
         .then(({ body }) => {
           expect(body.msg).toBe("Unprocessable content");
         });
-    });
-  });
-  describe("/api/atricles", () => {
-    describe("GET", () => {
-      test("200 OK: should return an array of all the articles", () => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body }) => {
-            expect(body.articles.length).toBeGreaterThan(0);
-            body.articles.forEach((article) => {
-              expect(typeof article.article_id).toBe("number");
-              expect(typeof article.title).toBe("string");
-              expect(typeof article.topic).toBe("string");
-              expect(typeof article.author).toBe("string");
-              expect(typeof article.votes).toBe("number");
-              expect(typeof article.article_img_url).toBe("string");
-              expect(typeof article.comment_count).toBe("string");
-            });
-          });
-      });
-      test("200 OK: should return an array of all the articles sorted by date", () => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body }) => {
-            body.articles.forEach((article) => {
-              article.created_at = new Date(article.created_at).getTime();
-            });
-            expect(body.articles).toBeSortedBy("created_at", {
-              descending: true,
-            });
-          });
-      });
     });
   });
   describe("/api/articles/:article_id/comments", () => {
