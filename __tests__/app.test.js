@@ -111,39 +111,93 @@ describe("/api/articles/:atricle_id", () => {
     });
   });
   describe("/api/articles/:article_id/comments", () => {
-    test("200 OK: should return an array of comments refferencing the article_id that was given", () => {
-      return request(app)
-        .get("/api/articles/1/comments")
-        .expect(200)
-        .then(({ body }) => {
-          console.log(body);
-          if (body.comments.length > 0) {
-            body.comments.forEach((comment) => {
-              expect(typeof comment.comment_id).toBe("number");
-              expect(typeof comment.votes).toBe("number");
-              expect(typeof comment.created_at).toBe("string");
-              expect(typeof comment.author).toBe("string");
-              expect(typeof comment.body).toBe("string");
-              expect(typeof comment.article_id).toBe("number");
+    describe("GET", () => {
+      test("200 OK: should return an array of comments refferencing the article_id that was given", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            if (body.comments.length > 0) {
+              body.comments.forEach((comment) => {
+                expect(typeof comment.comment_id).toBe("number");
+                expect(typeof comment.votes).toBe("number");
+                expect(typeof comment.created_at).toBe("string");
+                expect(typeof comment.author).toBe("string");
+                expect(typeof comment.body).toBe("string");
+                expect(typeof comment.article_id).toBe("number");
+              });
+            }
+          });
+      });
+      test("400 Bad request: should return 'Bad request' when given an invalid input for article_id", () => {
+        return request(app)
+          .get("/api/articles/hello")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+      test("404 Not found: should return 'Not found' when given a valid input but out of the scope", () => {
+        return request(app)
+          .get("/api/articles/999")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Not found");
+          });
+      });
+    });
+    describe("POST", () => {
+      test("201 CREATED: should return a comment refferencing the article_id that was given", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .send({ username: "rogersop", body: "i dont agree with this!" })
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.comment.author).toBe("rogersop");
+            expect(body.comment.body).toBe("i dont agree with this!");
+            expect(body.comment).toEqual({
+              comment_id: 19,
+              body: "i dont agree with this!",
+              votes: 0,
+              author: "rogersop",
+              article_id: 1,
+              created_at: body.comment.created_at,
             });
-          }
-        });
-    });
-    test("400 Bad request: should return 'Bad request' when given an invalid input for article_id", () => {
-      return request(app)
-        .get("/api/articles/hello")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-    test("404 Not found: should return 'Not found' when given a valid input but out of the scope", () => {
-      return request(app)
-        .get("/api/articles/999")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
-        });
+          });
+      });
+      test("400 Bad request: if valid input given for artcle id but non existant", () => {
+        return request(app)
+          .post("/api/articles/999/comments")
+          .send({
+            username: "rogersop",
+            body: "i dont agree with this!",
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+      test("400 Bad request: if invalid input given for artcle id", () => {
+        return request(app)
+          .post("/api/articles/hello/comments")
+          .send({
+            username: "rogersop",
+            body: "i dont agree with this!",
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+      test("422 Unprocessable content: if given a invalid body ", () => {
+        return request(app)
+          .post("/api/articles/hello/comments")
+          .send({})
+          .expect(422)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Unprocessable content");
+          });
+      });
     });
   });
 });
