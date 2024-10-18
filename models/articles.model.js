@@ -21,7 +21,7 @@ exports.selectArticles = (sort_by = `created_at`, order_by = "DESC") => {
     });
 };
 
-exports.selectArticleById = async (article_id) => {
+exports.selectArticleById = (article_id) => {
   return db
     .query(
       `
