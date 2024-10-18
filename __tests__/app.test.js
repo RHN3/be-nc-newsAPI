@@ -89,7 +89,15 @@ describe("/api/atricles", () => {
     });
     test("400 Bad request when given invalid querys", () => {
       return request(app)
-        .get("/api/articles?sort_by=123&order_by=LOL")
+        .get("/api/articles?sort_by=123&order_by=ASC")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("400 Bad request when given invalid querys", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order_by=LOL")
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
