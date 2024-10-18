@@ -71,12 +71,36 @@ describe("/api/atricles", () => {
           });
         });
     });
-    xtest("200 OK : should return an array of articles sorted by any given column name", () => {
+    test("200 OK : should return an array of articles sorted by any given column name", () => {
       return request(app)
         .get("/api/articles?sort_by=votes")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("votes");
+          expect(body.articles).toBeSortedBy("votes", { descending: true });
+        });
+    });
+    test("200 OK : should return an array of articles sorted by any given column name and order_by", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order_by=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("votes", { ascending: true });
+        });
+    });
+    test("400 Bad request when given invalid querys", () => {
+      return request(app)
+        .get("/api/articles?sort_by=123&order_by=ASC")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("400 Bad request when given invalid querys", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order_by=LOL")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
@@ -128,7 +152,7 @@ describe("/api/articles/:atricle_id", () => {
           expect(body.article.votes).toBe(50);
         });
     });
-    test("400 Bad request: if valid input given for artcle id but non existant", () => {
+    test("404 Not found: if valid input given for artcle id but non existant", () => {
       return request(app)
         .patch("/api/articles/999")
         .send({ inc_votes: -50 })
