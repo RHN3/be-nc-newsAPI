@@ -104,6 +104,26 @@ describe("/api/atricles", () => {
         });
     });
   });
+  describe("/api/articles?topic", () => {
+    test("200 OK should return an array of articles which have the given topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          body.articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+    test("400 Bad request should return error when given an invalid topic", () => {
+      return request(app)
+        .get("/api/articles?topic=12345")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
 });
 describe("/api/articles/:atricle_id", () => {
   describe("GET", () => {

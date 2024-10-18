@@ -2,7 +2,15 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const articles = require("../db/data/test-data/articles");
 
-exports.selectArticles = (sort_by = `created_at`, order_by = "DESC") => {
+exports.selectArticles = (
+  sort_by = `created_at`,
+  order_by = "DESC",
+  topic = "%%"
+) => {
+  const acceptedTopics = ["%%", "mitch", "cats"];
+  if (!acceptedTopics.includes(topic)) {
+    return Promise.reject({ code: 400, msg: "Bad request" });
+  }
   return db
     .query(
       format(
@@ -10,8 +18,10 @@ exports.selectArticles = (sort_by = `created_at`, order_by = "DESC") => {
    SELECT articles.author,articles.title,articles.article_id,articles.topic,articles.created_at,articles.votes,articles.article_img_url, COUNT(comments.article_id) AS comment_count 
    FROM articles 
    LEFT JOIN comments ON comments.article_id = articles.article_id
+   WHERE topic LIKE %L
    GROUP BY articles.article_id
    ORDER BY articles.%I %s;`,
+        topic,
         sort_by,
         order_by
       )
