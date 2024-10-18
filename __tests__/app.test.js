@@ -71,6 +71,14 @@ describe("/api/atricles", () => {
           });
         });
     });
+    xtest("200 OK : should return an array of articles sorted by any given column name", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("votes");
+        });
+    });
   });
 });
 describe("/api/articles/:atricle_id", () => {
