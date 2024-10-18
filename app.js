@@ -13,6 +13,7 @@ const { deleteComment } = require("./controllers/comments.controller");
 const { getUsers } = require("./controllers/users.controller");
 
 const endpoints = require("./endpoints.json");
+const { selectArticles } = require("./models/articles.model");
 
 app.use(express.json());
 
